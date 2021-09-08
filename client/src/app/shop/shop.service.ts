@@ -6,6 +6,7 @@ import { IType } from '../shared/models/productType';
 import { map } from 'rxjs/operators';
 import { ShopParams } from '../shared/models/shopParams';
 import { IProduct } from '../shared/models/product';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,7 @@ export class ShopService {
 
   constructor(private http: HttpClient) {}
 
-  getProducts(shopParams: ShopParams) {
+  getProducts(shopParams: ShopParams): Observable<IPagination> {
     let params = new HttpParams();
 
     if (shopParams.brandId !== 0)
@@ -42,15 +43,15 @@ export class ShopService {
       );
   }
 
-  getProduct(id: number) {
+  getProduct(id: number): Observable<IProduct> {
     return this.http.get<IProduct>(this.baseUrl + 'products/' + id);
   }
 
-  getBrands() {
+  getBrands(): Observable<IBrand[]> {
     return this.http.get<IBrand[]>(this.baseUrl + 'products/brands');
   }
 
-  getTypes() {
+  getTypes(): Observable<IType[]> {
     return this.http.get<IType[]>(this.baseUrl + 'products/types');
   }
 }
