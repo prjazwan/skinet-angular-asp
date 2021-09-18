@@ -1,4 +1,3 @@
-import { IProduct } from 'src/app/shared/models/product';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
@@ -11,6 +10,7 @@ import {
   IBasketTotals,
 } from '../shared/models/basket';
 import { IDeliveryMethod } from '../shared/models/deliveryMethod';
+import { IProduct } from '../shared/models/product';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +35,6 @@ export class BasketService {
       map((basket: IBasket) => {
         this.basketSource.next(basket);
         this.calculateTotals();
-        console.log(this.getCurrentBasketValue());
       })
     );
   }
@@ -64,29 +63,6 @@ export class BasketService {
     const basket = this.getCurrentBasketValue() ?? this.createBasket();
     basket.items = this.addOrUpdateItem(basket.items, itemToAdd, quantity);
     this.setBasket(basket);
-  }
-
-  private calculateTotals() {
-    const basket = this.getCurrentBasketValue();
-    const shipping = this.shipping;
-    const subtotal = basket.items.reduce((a, b) => b.price * b.quantity + a, 0);
-    const total = subtotal + shipping;
-    this.basketTotalSource.next({ shipping, total, subtotal });
-  }
-
-  private addOrUpdateItem(
-    items: IBasketItem[],
-    itemToAdd: IBasketItem,
-    quantity: number
-  ): IBasketItem[] {
-    const index = items.findIndex((i) => i.id === itemToAdd.id);
-    if (index === -1) {
-      itemToAdd.quantity = quantity;
-      items.push(itemToAdd);
-    } else {
-      items[index].quantity += quantity;
-    }
-    return items;
   }
 
   incrementItemQuantity(item: IBasketItem) {
@@ -136,6 +112,29 @@ export class BasketService {
         console.log(error);
       }
     );
+  }
+
+  private calculateTotals() {
+    const basket = this.getCurrentBasketValue();
+    const shipping = this.shipping;
+    const subtotal = basket.items.reduce((a, b) => b.price * b.quantity + a, 0);
+    const total = subtotal + shipping;
+    this.basketTotalSource.next({ shipping, total, subtotal });
+  }
+
+  private addOrUpdateItem(
+    items: IBasketItem[],
+    itemToAdd: IBasketItem,
+    quantity: number
+  ): IBasketItem[] {
+    const index = items.findIndex((i) => i.id === itemToAdd.id);
+    if (index === -1) {
+      itemToAdd.quantity = quantity;
+      items.push(itemToAdd);
+    } else {
+      items[index].quantity += quantity;
+    }
+    return items;
   }
 
   private createBasket(): IBasket {
